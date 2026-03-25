@@ -1,0 +1,34 @@
+syntax = "proto3";
+package greeter;
+
+option go_package = "github.com/hanxi/go-plugin-http/example/proto";
+
+// 插件服务定义 - 演示如何在插件中使用 HTTP 请求
+// go:plugin type=plugin version=1
+service Greeter {
+  // Greet 方法会在插件内部发起 HTTP 请求
+  rpc Greet(GreetRequest) returns (GreetReply) {}
+}
+
+// Host 函数定义 - 提供给插件调用的 host 端功能
+// go:plugin type=host
+service HostFunctions {
+  // Log 用于插件向 host 输出日志
+  rpc Log(LogRequest) returns (LogResponse) {}
+}
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetReply {
+  string message = 1;
+}
+
+message LogRequest {
+  string message = 1;
+}
+
+message LogResponse {
+  bool success = 1;
+}

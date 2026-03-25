@@ -1,0 +1,30 @@
+syntax = "proto3";
+package http;
+
+option go_package = "github.com/hanxi/go-plugin-http/export";
+
+// HTTP Library - 为 WASM 插件提供 HTTP 请求能力
+// 由于 WASM 环境不支持 net/http 包，本 library 通过 host 函数代理实现 HTTP 请求
+// go:plugin type=host module=http-library
+service HttpLibrary {
+  // 发起 HTTP 请求
+  rpc DoRequest(HttpRequest) returns (HttpResponse) {}
+}
+
+// HTTP 请求
+message HttpRequest {
+  string method = 1;              // HTTP方法: GET, POST, PUT, DELETE等
+  string url = 2;                 // 完整的请求URL
+  map<string, string> headers = 3; // 请求头
+  bytes body = 4;                 // 请求体
+  int64 timeout_ms = 5;           // 超时时间(毫秒)，0表示使用默认超时
+}
+
+// HTTP 响应
+message HttpResponse {
+  bool success = 1;               // 请求是否成功
+  string error = 2;               // 错误信息（如果失败）
+  int32 status_code = 3;          // HTTP状态码
+  map<string, string> headers = 4; // 响应头
+  bytes body = 5;                 // 响应体
+}

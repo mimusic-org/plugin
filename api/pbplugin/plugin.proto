@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package mimusic.plugin;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./api/pbplugin";
+
+// 插件服务定义
+// go:plugin type=plugin version=4
+service PluginService {
+  // 获取插件信息
+  rpc GetPluginInfo(google.protobuf.Empty) returns (GetPluginInfoResponse) {}
+
+  // 初始化插件
+  rpc Init(InitRequest) returns (google.protobuf.Empty) {}
+
+  // 反初始化插件
+  rpc Deinit(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // 定时器回调
+  rpc OnTimerCallback(OnTimerCallbackRequest) returns (google.protobuf.Empty) {}
+  
+  // 路由回调
+  rpc OnRouterCallback(OnRouterCallbackRequest) returns (OnRouterCallbackResponse) {}
+}
+
+// 获取插件信息响应
+message GetPluginInfoResponse {
+  bool success = 1;
+  string message = 2;
+  PluginInfo info = 3;
+}
+
+// 插件信息服务定义
+message PluginInfo {
+  string name = 1;
+  string version = 2;
+  string description = 3;
+  string author = 4;
+  string homepage = 5;
+  string entry_path = 6; // 插件入口路径，如 "/xiaomi"
+}
+
+message InitRequest {
+  int64 plugin_id = 1; // 插件ID
+}
+
+// 定时器回调请求
+message OnTimerCallbackRequest {
+  uint64 timer_id = 1;         // 定时器ID
+}
+
+// 取消定时器请求
+message CancelTimerRequest {
+  uint64 timer_id = 1;         // 定时器ID
+  int64 plugin_id = 2;         // 插件ID
+}
+
+// 主程序服务定义
+// go:plugin type=host
+service HostFunctions {
+  // 路由调用
+  rpc CallRouter(CallRouterRequest) returns (CallRouterResponse) {}
+  
+  // 注册延时任务
+  rpc RegisterDelayTimer(RegisterDelayTimerRequest) returns (google.protobuf.Empty) {}
+  
+  // 取消延时任务
+  rpc CancelDelayTimer(CancelTimerRequest) returns (google.protobuf.Empty) {}
+  
+  // 注册路由
+  rpc RegisterRouter(RegisterRouterRequest) returns (google.protobuf.Empty) {}
+  
+  // 获取插件 JWT Token
+  rpc GetPluginJWTToken(google.protobuf.Empty) returns (GetPluginJWTTokenResponse) {}
+}
+
+// 路由调用请求
+message CallRouterRequest {
+  string method = 1;    // HTTP方法: GET, POST, PUT, DELETE等
+  string path = 2;      // 路由路径
+  string query_string = 3;  // 查询字符串
+  map<string, string> headers = 4; // 请求头
+  bytes body = 5;       // 请求体
+}
+
+// 路由调用响应
+message CallRouterResponse {
+  bool success = 1;
+  string message = 2;
+  int32 status_code = 3;    // HTTP状态码
+  map<string, string> headers = 4; // 响应头
+  bytes body = 5;           // 响应体
+}
+
+// 注册延时任务请求
+message RegisterDelayTimerRequest {
+  uint64 timer_id = 1;         // 定时器ID
+  int64 delay_milliseconds = 2;     // 延迟毫秒
+  int64 plugin_id = 3; // 插件ID
+}
+
+// 注册路由请求
+message RegisterRouterRequest {
+  string method = 1;        // HTTP 方法：GET, POST, PUT, DELETE 等
+  string pattern = 2;       // 路由模式
+  uint64 handler_func_id = 3;   // 处理函数 ID
+  int64 plugin_id = 4;      // 插件 ID
+  bool requires_auth = 5;   // 是否需要认证
+}
+
+// 路由回调请求
+message OnRouterCallbackRequest {
+  uint64 handler_func_id = 1;   // 处理函数ID
+  // HTTP请求参数将会通过字节流传输
+  bytes request_data = 2;       // 序列化的HTTP请求数据
+}
+
+// 路由回调响应
+message OnRouterCallbackResponse {
+  bool success = 1;
+  string message = 2;
+  int32 status_code = 3;    // HTTP 状态码
+  map<string, string> headers = 4; // 响应头
+  bytes body = 5;           // 响应体
+}
+
+// 获取插件 JWT Token 响应
+message GetPluginJWTTokenResponse {
+  bool success = 1;
+  string message = 2;
+  string token = 3;
+}
