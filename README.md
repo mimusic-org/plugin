@@ -57,3 +57,7 @@ MiMusic 支持通过基于 WASM 的插件扩展其功能。这个仓库提供了
 ## 开始使用
 
 有关开发自己的插件的详细说明，请参阅 [mimusic-plugin-example](https://github.com/mimusic-org/mimusic-plugin-example) 仓库。
+
+## License
+
+本项目基于 [Apache License 2.0](LICENSE) 开源协议发布。
