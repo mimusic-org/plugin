@@ -1,7 +1,6 @@
-# MiMusic 插件协议
+# MiMusic 插件协议库
 
-这个仓库包含了 MiMusic 的插件协议和示例插件，MiMusic 是一个用 Go 构建的轻量级音乐服务器。
-
+这个仓库包含了 [MiMusic](https://github.com/mimusic-org/mimusic) 的插件协议和示例插件，[MiMusic](https://github.com/mimusic-org/mimusic) 是一个用 Go 构建的轻量级音乐服务器。
 ## 概述
 
 MiMusic 支持通过基于 WASM 的插件扩展其功能。这个仓库提供了：
