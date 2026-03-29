@@ -74,6 +74,11 @@ service HostFunctions {
   
   // 获取插件 JWT Token
   rpc GetPluginJWTToken(google.protobuf.Empty) returns (GetPluginJWTTokenResponse) {}
+
+  // JS 运行时管理（cqjs）
+  rpc CreateJSEnv(CreateJSEnvRequest) returns (CreateJSEnvResponse) {}
+  rpc ExecuteJS(ExecuteJSRequest) returns (ExecuteJSResponse) {}
+  rpc DestroyJSEnv(DestroyJSEnvRequest) returns (DestroyJSEnvResponse) {}
 }
 
 // 路由调用请求
@@ -131,4 +136,53 @@ message GetPluginJWTTokenResponse {
   bool success = 1;
   string message = 2;
   string token = 3;
+}
+
+// 创建 JS 运行时环境请求
+message CreateJSEnvRequest {
+  string env_id = 1;      // 环境 ID
+  string init_code = 2;   // 初始化代码
+  int64 plugin_id = 3;    // 插件 ID
+}
+
+// 创建 JS 运行时环境响应
+message CreateJSEnvResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 执行 JS 代码请求
+message ExecuteJSRequest {
+  string env_id = 1;      // 环境 ID
+  string code = 2;        // JS 代码
+  int64 timeout_ms = 3;   // 超时毫秒数
+  int64 plugin_id = 4;    // 插件 ID
+  repeated string wait_event_names = 5;  // 需要等待的事件名称列表（如 "dispatchResult", "dispatchError"）
+}
+
+// 执行 JS 代码响应
+message ExecuteJSResponse {
+  bool success = 1;
+  string message = 2;
+  string result = 3;              // 执行结果（JSON 字符串）
+  repeated JSEvent events = 4;    // 执行期间收集的事件
+}
+
+// JS 事件
+message JSEvent {
+  string env_id = 1;
+  string name = 2;
+  string data = 3;    // JSON 字符串
+}
+
+// 销毁 JS 运行时环境请求
+message DestroyJSEnvRequest {
+  string env_id = 1;      // 环境 ID
+  int64 plugin_id = 2;    // 插件 ID
+}
+
+// 销毁 JS 运行时环境响应
+message DestroyJSEnvResponse {
+  bool success = 1;
+  string message = 2;
 }

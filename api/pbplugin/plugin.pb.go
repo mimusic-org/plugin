@@ -492,6 +492,258 @@ func (x *GetPluginJWTTokenResponse) GetToken() string {
 	return ""
 }
 
+// 创建 JS 运行时环境请求
+type CreateJSEnvRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EnvId    string `protobuf:"bytes,1,opt,name=env_id,json=envId,proto3" json:"env_id,omitempty"`           // 环境 ID
+	InitCode string `protobuf:"bytes,2,opt,name=init_code,json=initCode,proto3" json:"init_code,omitempty"`  // 初始化代码
+	PluginId int64  `protobuf:"varint,3,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"` // 插件 ID
+}
+
+func (x *CreateJSEnvRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *CreateJSEnvRequest) GetEnvId() string {
+	if x != nil {
+		return x.EnvId
+	}
+	return ""
+}
+
+func (x *CreateJSEnvRequest) GetInitCode() string {
+	if x != nil {
+		return x.InitCode
+	}
+	return ""
+}
+
+func (x *CreateJSEnvRequest) GetPluginId() int64 {
+	if x != nil {
+		return x.PluginId
+	}
+	return 0
+}
+
+// 创建 JS 运行时环境响应
+type CreateJSEnvResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *CreateJSEnvResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *CreateJSEnvResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *CreateJSEnvResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// 执行 JS 代码请求
+type ExecuteJSRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EnvId          string   `protobuf:"bytes,1,opt,name=env_id,json=envId,proto3" json:"env_id,omitempty"`                              // 环境 ID
+	Code           string   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                             // JS 代码
+	TimeoutMs      int64    `protobuf:"varint,3,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`                 // 超时毫秒数
+	PluginId       int64    `protobuf:"varint,4,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`                    // 插件 ID
+	WaitEventNames []string `protobuf:"bytes,5,rep,name=wait_event_names,json=waitEventNames,proto3" json:"wait_event_names,omitempty"` // 需要等待的事件名称列表（如 "dispatchResult", "dispatchError"）
+}
+
+func (x *ExecuteJSRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *ExecuteJSRequest) GetEnvId() string {
+	if x != nil {
+		return x.EnvId
+	}
+	return ""
+}
+
+func (x *ExecuteJSRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *ExecuteJSRequest) GetTimeoutMs() int64 {
+	if x != nil {
+		return x.TimeoutMs
+	}
+	return 0
+}
+
+func (x *ExecuteJSRequest) GetPluginId() int64 {
+	if x != nil {
+		return x.PluginId
+	}
+	return 0
+}
+
+func (x *ExecuteJSRequest) GetWaitEventNames() []string {
+	if x != nil {
+		return x.WaitEventNames
+	}
+	return nil
+}
+
+// 执行 JS 代码响应
+type ExecuteJSResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool       `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string     `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Result  string     `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"` // 执行结果（JSON 字符串）
+	Events  []*JSEvent `protobuf:"bytes,4,rep,name=events,proto3" json:"events,omitempty"` // 执行期间收集的事件
+}
+
+func (x *ExecuteJSResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *ExecuteJSResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ExecuteJSResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ExecuteJSResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
+func (x *ExecuteJSResponse) GetEvents() []*JSEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+// JS 事件
+type JSEvent struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EnvId string `protobuf:"bytes,1,opt,name=env_id,json=envId,proto3" json:"env_id,omitempty"`
+	Name  string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Data  string `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"` // JSON 字符串
+}
+
+func (x *JSEvent) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *JSEvent) GetEnvId() string {
+	if x != nil {
+		return x.EnvId
+	}
+	return ""
+}
+
+func (x *JSEvent) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *JSEvent) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
+// 销毁 JS 运行时环境请求
+type DestroyJSEnvRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EnvId    string `protobuf:"bytes,1,opt,name=env_id,json=envId,proto3" json:"env_id,omitempty"`           // 环境 ID
+	PluginId int64  `protobuf:"varint,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"` // 插件 ID
+}
+
+func (x *DestroyJSEnvRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *DestroyJSEnvRequest) GetEnvId() string {
+	if x != nil {
+		return x.EnvId
+	}
+	return ""
+}
+
+func (x *DestroyJSEnvRequest) GetPluginId() int64 {
+	if x != nil {
+		return x.PluginId
+	}
+	return 0
+}
+
+// 销毁 JS 运行时环境响应
+type DestroyJSEnvResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *DestroyJSEnvResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *DestroyJSEnvResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DestroyJSEnvResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 // 插件服务定义
 // go:plugin type=plugin version=4
 type PluginService interface {
@@ -520,4 +772,8 @@ type HostFunctions interface {
 	RegisterRouter(context.Context, *RegisterRouterRequest) (*emptypb.Empty, error)
 	// 获取插件 JWT Token
 	GetPluginJWTToken(context.Context, *emptypb.Empty) (*GetPluginJWTTokenResponse, error)
+	// JS 运行时管理（cqjs）
+	CreateJSEnv(context.Context, *CreateJSEnvRequest) (*CreateJSEnvResponse, error)
+	ExecuteJS(context.Context, *ExecuteJSRequest) (*ExecuteJSResponse, error)
+	DestroyJSEnv(context.Context, *DestroyJSEnvRequest) (*DestroyJSEnvResponse, error)
 }

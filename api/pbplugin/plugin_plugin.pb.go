@@ -268,3 +268,72 @@ func (h hostFunctions) GetPluginJWTToken(ctx context.Context, request *emptypb.E
 	}
 	return response, nil
 }
+
+//go:wasmimport env create_js_env
+func _create_js_env(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) CreateJSEnv(ctx context.Context, request *CreateJSEnvRequest) (*CreateJSEnvResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _create_js_env(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(CreateJSEnvResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+//go:wasmimport env execute_js
+func _execute_js(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) ExecuteJS(ctx context.Context, request *ExecuteJSRequest) (*ExecuteJSResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _execute_js(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(ExecuteJSResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+//go:wasmimport env destroy_js_env
+func _destroy_js_env(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) DestroyJSEnv(ctx context.Context, request *DestroyJSEnvRequest) (*DestroyJSEnvResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _destroy_js_env(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(DestroyJSEnvResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}

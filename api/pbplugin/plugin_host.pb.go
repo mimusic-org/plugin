@@ -58,6 +58,21 @@ func (h _hostFunctions) Instantiate(ctx context.Context, r wazero.Runtime) error
 		WithParameterNames("offset", "size").
 		Export("get_plugin_jwt_token")
 
+	envBuilder.NewFunctionBuilder().
+		WithGoModuleFunction(api.GoModuleFunc(h._CreateJSEnv), []api.ValueType{i32, i32}, []api.ValueType{i64}).
+		WithParameterNames("offset", "size").
+		Export("create_js_env")
+
+	envBuilder.NewFunctionBuilder().
+		WithGoModuleFunction(api.GoModuleFunc(h._ExecuteJS), []api.ValueType{i32, i32}, []api.ValueType{i64}).
+		WithParameterNames("offset", "size").
+		Export("execute_js")
+
+	envBuilder.NewFunctionBuilder().
+		WithGoModuleFunction(api.GoModuleFunc(h._DestroyJSEnv), []api.ValueType{i32, i32}, []api.ValueType{i64}).
+		WithParameterNames("offset", "size").
+		Export("destroy_js_env")
+
 	_, err := envBuilder.Instantiate(ctx)
 	return err
 }
@@ -192,6 +207,89 @@ func (h _hostFunctions) _GetPluginJWTToken(ctx context.Context, m api.Module, st
 		panic(err)
 	}
 	resp, err := h.GetPluginJWTToken(ctx, request)
+	if err != nil {
+		panic(err)
+	}
+	buf, err = resp.MarshalVT()
+	if err != nil {
+		panic(err)
+	}
+	ptr, err := wasm.WriteMemory(ctx, m, buf)
+	if err != nil {
+		panic(err)
+	}
+	ptrLen := (ptr << uint64(32)) | uint64(len(buf))
+	stack[0] = ptrLen
+}
+
+// JS 运行时管理（cqjs）
+
+func (h _hostFunctions) _CreateJSEnv(ctx context.Context, m api.Module, stack []uint64) {
+	offset, size := uint32(stack[0]), uint32(stack[1])
+	buf, err := wasm.ReadMemory(m.Memory(), offset, size)
+	if err != nil {
+		panic(err)
+	}
+	request := new(CreateJSEnvRequest)
+	err = request.UnmarshalVT(buf)
+	if err != nil {
+		panic(err)
+	}
+	resp, err := h.CreateJSEnv(ctx, request)
+	if err != nil {
+		panic(err)
+	}
+	buf, err = resp.MarshalVT()
+	if err != nil {
+		panic(err)
+	}
+	ptr, err := wasm.WriteMemory(ctx, m, buf)
+	if err != nil {
+		panic(err)
+	}
+	ptrLen := (ptr << uint64(32)) | uint64(len(buf))
+	stack[0] = ptrLen
+}
+
+func (h _hostFunctions) _ExecuteJS(ctx context.Context, m api.Module, stack []uint64) {
+	offset, size := uint32(stack[0]), uint32(stack[1])
+	buf, err := wasm.ReadMemory(m.Memory(), offset, size)
+	if err != nil {
+		panic(err)
+	}
+	request := new(ExecuteJSRequest)
+	err = request.UnmarshalVT(buf)
+	if err != nil {
+		panic(err)
+	}
+	resp, err := h.ExecuteJS(ctx, request)
+	if err != nil {
+		panic(err)
+	}
+	buf, err = resp.MarshalVT()
+	if err != nil {
+		panic(err)
+	}
+	ptr, err := wasm.WriteMemory(ctx, m, buf)
+	if err != nil {
+		panic(err)
+	}
+	ptrLen := (ptr << uint64(32)) | uint64(len(buf))
+	stack[0] = ptrLen
+}
+
+func (h _hostFunctions) _DestroyJSEnv(ctx context.Context, m api.Module, stack []uint64) {
+	offset, size := uint32(stack[0]), uint32(stack[1])
+	buf, err := wasm.ReadMemory(m.Memory(), offset, size)
+	if err != nil {
+		panic(err)
+	}
+	request := new(DestroyJSEnvRequest)
+	err = request.UnmarshalVT(buf)
+	if err != nil {
+		panic(err)
+	}
+	resp, err := h.DestroyJSEnv(ctx, request)
 	if err != nil {
 		panic(err)
 	}
