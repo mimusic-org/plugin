@@ -744,6 +744,86 @@ func (x *DestroyJSEnvResponse) GetMessage() string {
 	return ""
 }
 
+// 并行执行多个 JS 环境的请求（竞速模式，返回第一个成功结果）
+type ExecuteJSParallelRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Calls         []*ExecuteJSRequest `protobuf:"bytes,1,rep,name=calls,proto3" json:"calls,omitempty"`                                       // 待执行的 JS 调用列表
+	MaxConcurrent int32               `protobuf:"varint,2,opt,name=max_concurrent,json=maxConcurrent,proto3" json:"max_concurrent,omitempty"` // 最大并发数（0 = 全部并行）
+}
+
+func (x *ExecuteJSParallelRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *ExecuteJSParallelRequest) GetCalls() []*ExecuteJSRequest {
+	if x != nil {
+		return x.Calls
+	}
+	return nil
+}
+
+func (x *ExecuteJSParallelRequest) GetMaxConcurrent() int32 {
+	if x != nil {
+		return x.MaxConcurrent
+	}
+	return 0
+}
+
+// 并行执行响应
+type ExecuteJSParallelResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success      bool               `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否有至少一个调用成功
+	Message      string             `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	SuccessIndex int32              `protobuf:"varint,3,opt,name=success_index,json=successIndex,proto3" json:"success_index,omitempty"` // 成功的调用索引（-1 表示全部失败）
+	Result       *ExecuteJSResponse `protobuf:"bytes,4,opt,name=result,proto3" json:"result,omitempty"`                                  // 成功的调用结果
+	Errors       []string           `protobuf:"bytes,5,rep,name=errors,proto3" json:"errors,omitempty"`                                  // 各调用的错误信息（成功的为空字符串）
+}
+
+func (x *ExecuteJSParallelResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *ExecuteJSParallelResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ExecuteJSParallelResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ExecuteJSParallelResponse) GetSuccessIndex() int32 {
+	if x != nil {
+		return x.SuccessIndex
+	}
+	return 0
+}
+
+func (x *ExecuteJSParallelResponse) GetResult() *ExecuteJSResponse {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+func (x *ExecuteJSParallelResponse) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 // 插件服务定义
 // go:plugin type=plugin version=4
 type PluginService interface {
@@ -776,4 +856,6 @@ type HostFunctions interface {
 	CreateJSEnv(context.Context, *CreateJSEnvRequest) (*CreateJSEnvResponse, error)
 	ExecuteJS(context.Context, *ExecuteJSRequest) (*ExecuteJSResponse, error)
 	DestroyJSEnv(context.Context, *DestroyJSEnvRequest) (*DestroyJSEnvResponse, error)
+	// 并行执行多个 JS 环境的代码（竞速模式）
+	ExecuteJSParallel(context.Context, *ExecuteJSParallelRequest) (*ExecuteJSParallelResponse, error)
 }

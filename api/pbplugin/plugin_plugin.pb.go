@@ -337,3 +337,26 @@ func (h hostFunctions) DestroyJSEnv(ctx context.Context, request *DestroyJSEnvRe
 	}
 	return response, nil
 }
+
+//go:wasmimport env execute_js_parallel
+func _execute_js_parallel(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) ExecuteJSParallel(ctx context.Context, request *ExecuteJSParallelRequest) (*ExecuteJSParallelResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _execute_js_parallel(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(ExecuteJSParallelResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}

@@ -73,6 +73,11 @@ func (h _hostFunctions) Instantiate(ctx context.Context, r wazero.Runtime) error
 		WithParameterNames("offset", "size").
 		Export("destroy_js_env")
 
+	envBuilder.NewFunctionBuilder().
+		WithGoModuleFunction(api.GoModuleFunc(h._ExecuteJSParallel), []api.ValueType{i32, i32}, []api.ValueType{i64}).
+		WithParameterNames("offset", "size").
+		Export("execute_js_parallel")
+
 	_, err := envBuilder.Instantiate(ctx)
 	return err
 }
@@ -290,6 +295,35 @@ func (h _hostFunctions) _DestroyJSEnv(ctx context.Context, m api.Module, stack [
 		panic(err)
 	}
 	resp, err := h.DestroyJSEnv(ctx, request)
+	if err != nil {
+		panic(err)
+	}
+	buf, err = resp.MarshalVT()
+	if err != nil {
+		panic(err)
+	}
+	ptr, err := wasm.WriteMemory(ctx, m, buf)
+	if err != nil {
+		panic(err)
+	}
+	ptrLen := (ptr << uint64(32)) | uint64(len(buf))
+	stack[0] = ptrLen
+}
+
+// 并行执行多个 JS 环境的代码（竞速模式）
+
+func (h _hostFunctions) _ExecuteJSParallel(ctx context.Context, m api.Module, stack []uint64) {
+	offset, size := uint32(stack[0]), uint32(stack[1])
+	buf, err := wasm.ReadMemory(m.Memory(), offset, size)
+	if err != nil {
+		panic(err)
+	}
+	request := new(ExecuteJSParallelRequest)
+	err = request.UnmarshalVT(buf)
+	if err != nil {
+		panic(err)
+	}
+	resp, err := h.ExecuteJSParallel(ctx, request)
 	if err != nil {
 		panic(err)
 	}

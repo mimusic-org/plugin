@@ -10,36 +10,36 @@ option go_package = "./api/pbplugin";
 // go:plugin type=plugin version=4
 service PluginService {
   // 获取插件信息
-  rpc GetPluginInfo(google.protobuf.Empty) returns (GetPluginInfoResponse) {}
+  rpc GetPluginInfo(google.protobuf.Empty) returns (GetPluginInfoResponse);
 
   // 初始化插件
-  rpc Init(InitRequest) returns (google.protobuf.Empty) {}
+  rpc Init(InitRequest) returns (google.protobuf.Empty);
 
   // 反初始化插件
-  rpc Deinit(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc Deinit(google.protobuf.Empty) returns (google.protobuf.Empty);
 
   // 定时器回调
-  rpc OnTimerCallback(OnTimerCallbackRequest) returns (google.protobuf.Empty) {}
-  
+  rpc OnTimerCallback(OnTimerCallbackRequest) returns (google.protobuf.Empty);
+
   // 路由回调
-  rpc OnRouterCallback(OnRouterCallbackRequest) returns (OnRouterCallbackResponse) {}
+  rpc OnRouterCallback(OnRouterCallbackRequest) returns (OnRouterCallbackResponse);
 }
 
 // 获取插件信息响应
 message GetPluginInfoResponse {
-  bool success = 1;
-  string message = 2;
-  PluginInfo info = 3;
+  bool       success = 1;
+  string     message = 2;
+  PluginInfo info    = 3;
 }
 
 // 插件信息服务定义
 message PluginInfo {
-  string name = 1;
-  string version = 2;
+  string name        = 1;
+  string version     = 2;
   string description = 3;
-  string author = 4;
-  string homepage = 5;
-  string entry_path = 6; // 插件入口路径，如 "/xiaomi"
+  string author      = 4;
+  string homepage    = 5;
+  string entry_path  = 6; // 插件入口路径，如 "/xiaomi"
 }
 
 message InitRequest {
@@ -48,141 +48,159 @@ message InitRequest {
 
 // 定时器回调请求
 message OnTimerCallbackRequest {
-  uint64 timer_id = 1;         // 定时器ID
+  uint64 timer_id = 1; // 定时器ID
 }
 
 // 取消定时器请求
 message CancelTimerRequest {
-  uint64 timer_id = 1;         // 定时器ID
-  int64 plugin_id = 2;         // 插件ID
+  uint64 timer_id  = 1; // 定时器ID
+  int64  plugin_id = 2; // 插件ID
 }
 
 // 主程序服务定义
 // go:plugin type=host
 service HostFunctions {
   // 路由调用
-  rpc CallRouter(CallRouterRequest) returns (CallRouterResponse) {}
-  
+  rpc CallRouter(CallRouterRequest) returns (CallRouterResponse);
+
   // 注册延时任务
-  rpc RegisterDelayTimer(RegisterDelayTimerRequest) returns (google.protobuf.Empty) {}
-  
+  rpc RegisterDelayTimer(RegisterDelayTimerRequest) returns (google.protobuf.Empty);
+
   // 取消延时任务
-  rpc CancelDelayTimer(CancelTimerRequest) returns (google.protobuf.Empty) {}
-  
+  rpc CancelDelayTimer(CancelTimerRequest) returns (google.protobuf.Empty);
+
   // 注册路由
-  rpc RegisterRouter(RegisterRouterRequest) returns (google.protobuf.Empty) {}
-  
+  rpc RegisterRouter(RegisterRouterRequest) returns (google.protobuf.Empty);
+
   // 获取插件 JWT Token
-  rpc GetPluginJWTToken(google.protobuf.Empty) returns (GetPluginJWTTokenResponse) {}
+  rpc GetPluginJWTToken(google.protobuf.Empty) returns (GetPluginJWTTokenResponse);
 
   // JS 运行时管理（cqjs）
-  rpc CreateJSEnv(CreateJSEnvRequest) returns (CreateJSEnvResponse) {}
-  rpc ExecuteJS(ExecuteJSRequest) returns (ExecuteJSResponse) {}
-  rpc DestroyJSEnv(DestroyJSEnvRequest) returns (DestroyJSEnvResponse) {}
+  rpc CreateJSEnv(CreateJSEnvRequest) returns (CreateJSEnvResponse);
+  rpc ExecuteJS(ExecuteJSRequest) returns (ExecuteJSResponse);
+  rpc DestroyJSEnv(DestroyJSEnvRequest) returns (DestroyJSEnvResponse);
+
+  // 并行执行多个 JS 环境的代码（竞速模式）
+  rpc ExecuteJSParallel(ExecuteJSParallelRequest) returns (ExecuteJSParallelResponse);
 }
 
 // 路由调用请求
 message CallRouterRequest {
-  string method = 1;    // HTTP方法: GET, POST, PUT, DELETE等
-  string path = 2;      // 路由路径
-  string query_string = 3;  // 查询字符串
-  map<string, string> headers = 4; // 请求头
-  bytes body = 5;       // 请求体
+  string              method       = 1; // HTTP方法: GET, POST, PUT, DELETE等
+  string              path         = 2; // 路由路径
+  string              query_string = 3; // 查询字符串
+  map<string, string> headers      = 4; // 请求头
+  bytes               body         = 5; // 请求体
 }
 
 // 路由调用响应
 message CallRouterResponse {
-  bool success = 1;
-  string message = 2;
-  int32 status_code = 3;    // HTTP状态码
-  map<string, string> headers = 4; // 响应头
-  bytes body = 5;           // 响应体
+  bool                success     = 1;
+  string              message     = 2;
+  int32               status_code = 3; // HTTP状态码
+  map<string, string> headers     = 4; // 响应头
+  bytes               body        = 5; // 响应体
 }
 
 // 注册延时任务请求
 message RegisterDelayTimerRequest {
-  uint64 timer_id = 1;         // 定时器ID
-  int64 delay_milliseconds = 2;     // 延迟毫秒
-  int64 plugin_id = 3; // 插件ID
+  uint64 timer_id           = 1; // 定时器ID
+  int64  delay_milliseconds = 2; // 延迟毫秒
+  int64  plugin_id          = 3; // 插件ID
 }
 
 // 注册路由请求
 message RegisterRouterRequest {
-  string method = 1;        // HTTP 方法：GET, POST, PUT, DELETE 等
-  string pattern = 2;       // 路由模式
-  uint64 handler_func_id = 3;   // 处理函数 ID
-  int64 plugin_id = 4;      // 插件 ID
-  bool requires_auth = 5;   // 是否需要认证
+  string method          = 1; // HTTP 方法：GET, POST, PUT, DELETE 等
+  string pattern         = 2; // 路由模式
+  uint64 handler_func_id = 3; // 处理函数 ID
+  int64  plugin_id       = 4; // 插件 ID
+  bool   requires_auth   = 5; // 是否需要认证
 }
 
 // 路由回调请求
 message OnRouterCallbackRequest {
-  uint64 handler_func_id = 1;   // 处理函数ID
+  uint64 handler_func_id = 1; // 处理函数ID
   // HTTP请求参数将会通过字节流传输
-  bytes request_data = 2;       // 序列化的HTTP请求数据
+  bytes request_data = 2; // 序列化的HTTP请求数据
 }
 
 // 路由回调响应
 message OnRouterCallbackResponse {
-  bool success = 1;
-  string message = 2;
-  int32 status_code = 3;    // HTTP 状态码
-  map<string, string> headers = 4; // 响应头
-  bytes body = 5;           // 响应体
+  bool                success     = 1;
+  string              message     = 2;
+  int32               status_code = 3; // HTTP 状态码
+  map<string, string> headers     = 4; // 响应头
+  bytes               body        = 5; // 响应体
 }
 
 // 获取插件 JWT Token 响应
 message GetPluginJWTTokenResponse {
-  bool success = 1;
+  bool   success = 1;
   string message = 2;
-  string token = 3;
+  string token   = 3;
 }
 
 // 创建 JS 运行时环境请求
 message CreateJSEnvRequest {
-  string env_id = 1;      // 环境 ID
-  string init_code = 2;   // 初始化代码
-  int64 plugin_id = 3;    // 插件 ID
+  string env_id    = 1; // 环境 ID
+  string init_code = 2; // 初始化代码
+  int64  plugin_id = 3; // 插件 ID
 }
 
 // 创建 JS 运行时环境响应
 message CreateJSEnvResponse {
-  bool success = 1;
+  bool   success = 1;
   string message = 2;
 }
 
 // 执行 JS 代码请求
 message ExecuteJSRequest {
-  string env_id = 1;      // 环境 ID
-  string code = 2;        // JS 代码
-  int64 timeout_ms = 3;   // 超时毫秒数
-  int64 plugin_id = 4;    // 插件 ID
-  repeated string wait_event_names = 5;  // 需要等待的事件名称列表（如 "dispatchResult", "dispatchError"）
+  string          env_id           = 1; // 环境 ID
+  string          code             = 2; // JS 代码
+  int64           timeout_ms       = 3; // 超时毫秒数
+  int64           plugin_id        = 4; // 插件 ID
+  repeated string wait_event_names = 5; // 需要等待的事件名称列表（如 "dispatchResult", "dispatchError"）
 }
 
 // 执行 JS 代码响应
 message ExecuteJSResponse {
-  bool success = 1;
-  string message = 2;
-  string result = 3;              // 执行结果（JSON 字符串）
-  repeated JSEvent events = 4;    // 执行期间收集的事件
+  bool             success = 1;
+  string           message = 2;
+  string           result  = 3; // 执行结果（JSON 字符串）
+  repeated JSEvent events  = 4; // 执行期间收集的事件
 }
 
 // JS 事件
 message JSEvent {
   string env_id = 1;
-  string name = 2;
-  string data = 3;    // JSON 字符串
+  string name   = 2;
+  string data   = 3; // JSON 字符串
 }
 
 // 销毁 JS 运行时环境请求
 message DestroyJSEnvRequest {
-  string env_id = 1;      // 环境 ID
-  int64 plugin_id = 2;    // 插件 ID
+  string env_id    = 1; // 环境 ID
+  int64  plugin_id = 2; // 插件 ID
 }
 
 // 销毁 JS 运行时环境响应
 message DestroyJSEnvResponse {
-  bool success = 1;
+  bool   success = 1;
   string message = 2;
+}
+
+// 并行执行多个 JS 环境的请求（竞速模式，返回第一个成功结果）
+message ExecuteJSParallelRequest {
+  repeated ExecuteJSRequest calls          = 1; // 待执行的 JS 调用列表
+  int32                     max_concurrent = 2; // 最大并发数（0 = 全部并行）
+}
+
+// 并行执行响应
+message ExecuteJSParallelResponse {
+  bool              success       = 1; // 是否有至少一个调用成功
+  string            message       = 2;
+  int32             success_index = 3; // 成功的调用索引（-1 表示全部失败）
+  ExecuteJSResponse result        = 4; // 成功的调用结果
+  repeated string   errors        = 5; // 各调用的错误信息（成功的为空字符串）
 }
