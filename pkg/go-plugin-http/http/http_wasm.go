@@ -259,11 +259,19 @@ type Response struct {
 }
 
 // Cookies 从响应头中解析 cookies
+// 支持 host 端将多个 Set-Cookie 用 "\n" 拼接的格式
 func (r *Response) Cookies() []*Cookie {
 	var cookies []*Cookie
 	for _, line := range r.Header["Set-Cookie"] {
-		if cookie := parseCookie(line); cookie != nil {
-			cookies = append(cookies, cookie)
+		// host 端可能将多个 Set-Cookie 用 "\n" 拼接
+		for _, part := range strings.Split(line, "\n") {
+			part = strings.TrimSpace(part)
+			if part == "" {
+				continue
+			}
+			if cookie := parseCookie(part); cookie != nil {
+				cookies = append(cookies, cookie)
+			}
 		}
 	}
 	return cookies
@@ -345,14 +353,18 @@ func (c *Client) DoContext(ctx context.Context, req *Request) (*Response, error)
 		timeoutMs = c.Timeout.Milliseconds()
 	}
 
+	// 检查插件是否设置了 CheckRedirect，决定是否禁用自动重定向
+	disableRedirect := c.CheckRedirect != nil
+
 	// 调用 HTTP Library 发起 HTTP 请求
 	httpLibrary := export.NewHttpLibrary()
 	resp, err := httpLibrary.DoRequest(ctx, &export.HttpRequest{
-		Method:    req.Method,
-		Url:       req.URL.String(),
-		Headers:   headers,
-		Body:      bodyBytes,
-		TimeoutMs: timeoutMs,
+		Method:          req.Method,
+		Url:             req.URL.String(),
+		Headers:         headers,
+		Body:            bodyBytes,
+		TimeoutMs:       timeoutMs,
+		DisableRedirect: disableRedirect,
 	})
 	if err != nil {
 		return nil, err

@@ -18,6 +18,7 @@ message HttpRequest {
   map<string, string> headers = 3; // 请求头
   bytes body = 4;                 // 请求体
   int64 timeout_ms = 5;           // 超时时间(毫秒)，0表示使用默认超时
+  bool disable_redirect = 6;     // 是否禁用自动重定向
 }
 
 // HTTP 响应
