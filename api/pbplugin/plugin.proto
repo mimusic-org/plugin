@@ -82,6 +82,13 @@ service HostFunctions {
 
   // 并行执行多个 JS 环境的代码（竞速模式）
   rpc ExecuteJSParallel(ExecuteJSParallelRequest) returns (ExecuteJSParallelResponse);
+
+  // 执行外部命令（受双重白名单限制）
+  rpc ExecuteCommand(ExecuteCommandRequest) returns (ExecuteCommandResponse);
+  // 停止后台命令
+  rpc StopCommand(StopCommandRequest) returns (StopCommandResponse);
+  // 获取后台命令输出
+  rpc GetCommandOutput(GetCommandOutputRequest) returns (GetCommandOutputResponse);
 }
 
 // 路由调用请求
@@ -203,4 +210,52 @@ message ExecuteJSParallelResponse {
   int32             success_index = 3; // 成功的调用索引（-1 表示全部失败）
   ExecuteJSResponse result        = 4; // 成功的调用结果
   repeated string   errors        = 5; // 各调用的错误信息（成功的为空字符串）
+}
+
+// 执行外部命令请求
+message ExecuteCommandRequest {
+  string              command    = 1; // 可执行文件名（如 "cloudflared"，不含路径）
+  repeated string     args       = 2; // 命令参数列表
+  map<string, string> env        = 3; // 额外环境变量
+  int64               plugin_id  = 4; // 插件 ID
+  bool                background = 5; // 是否后台运行
+  string              process_id = 6; // 进程标识符（后台模式必填）
+}
+
+// 执行外部命令响应
+message ExecuteCommandResponse {
+  bool   success    = 1;
+  string message    = 2;
+  string stdout     = 3;
+  string stderr     = 4;
+  int32  exit_code  = 5;
+  string process_id = 6;
+}
+
+// 停止后台命令请求
+message StopCommandRequest {
+  string process_id = 1;
+  int64  plugin_id  = 2;
+}
+
+// 停止后台命令响应
+message StopCommandResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+// 获取后台命令输出请求
+message GetCommandOutputRequest {
+  string process_id = 1;
+  int64  plugin_id  = 2;
+}
+
+// 获取后台命令输出响应
+message GetCommandOutputResponse {
+  bool   success   = 1;
+  string message   = 2;
+  string stdout    = 3;
+  string stderr    = 4;
+  bool   running   = 5;
+  int32  exit_code = 6;
 }
