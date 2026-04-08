@@ -89,6 +89,11 @@ service HostFunctions {
   rpc StopCommand(StopCommandRequest) returns (StopCommandResponse);
   // 获取后台命令输出
   rpc GetCommandOutput(GetCommandOutputRequest) returns (GetCommandOutputResponse);
+
+  // 异步下载文件到插件数据目录
+  rpc DownloadFile(DownloadFileRequest) returns (DownloadFileResponse);
+  // 获取下载任务状态
+  rpc GetDownloadStatus(GetDownloadStatusRequest) returns (GetDownloadStatusResponse);
 }
 
 // 路由调用请求
@@ -258,4 +263,38 @@ message GetCommandOutputResponse {
   string stderr    = 4;
   bool   running   = 5;
   int32  exit_code = 6;
+}
+
+// 异步下载文件请求
+message DownloadFileRequest {
+  string url                 = 1; // 下载 URL
+  string dest_path           = 2; // 目标路径（WASM 视角，如 "/cloudflared/bin/cloudflared"）
+  string task_id             = 3; // 任务标识符（插件自定义，如 "download-cloudflared"）
+  int64  plugin_id           = 4; // 插件 ID
+  bool   extract_tgz         = 5; // 是否需要解压 .tgz（macOS 场景）
+  string extract_target_name = 6; // 解压后目标文件名（如 "cloudflared"）
+}
+
+// 异步下载文件响应
+message DownloadFileResponse {
+  bool   success = 1;
+  string message = 2;
+  string task_id = 3;
+}
+
+// 获取下载任务状态请求
+message GetDownloadStatusRequest {
+  string task_id   = 1; // 任务标识符
+  int64  plugin_id = 2; // 插件 ID
+}
+
+// 获取下载任务状态响应
+message GetDownloadStatusResponse {
+  bool   success          = 1;
+  string message          = 2;
+  string status           = 3; // "downloading", "completed", "failed", "not_found"
+  int64  downloaded_bytes = 4; // 已下载字节数
+  int64  total_bytes      = 5; // 文件总字节数（-1 表示未知）
+  int32  progress_percent = 6; // 下载进度百分比 0-100
+  string error            = 7; // 失败时的错误信息
 }
