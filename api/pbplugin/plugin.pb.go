@@ -1088,6 +1088,198 @@ func (x *GetCommandOutputResponse) GetExitCode() int32 {
 	return 0
 }
 
+// 异步下载文件请求
+type DownloadFileRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Url               string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`                                                        // 下载 URL
+	DestPath          string `protobuf:"bytes,2,opt,name=dest_path,json=destPath,proto3" json:"dest_path,omitempty"`                              // 目标路径（WASM 视角，如 "/cloudflared/bin/cloudflared"）
+	TaskId            string `protobuf:"bytes,3,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`                                    // 任务标识符（插件自定义，如 "download-cloudflared"）
+	PluginId          int64  `protobuf:"varint,4,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`                             // 插件 ID
+	ExtractTgz        bool   `protobuf:"varint,5,opt,name=extract_tgz,json=extractTgz,proto3" json:"extract_tgz,omitempty"`                       // 是否需要解压 .tgz（macOS 场景）
+	ExtractTargetName string `protobuf:"bytes,6,opt,name=extract_target_name,json=extractTargetName,proto3" json:"extract_target_name,omitempty"` // 解压后目标文件名（如 "cloudflared"）
+}
+
+func (x *DownloadFileRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *DownloadFileRequest) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *DownloadFileRequest) GetDestPath() string {
+	if x != nil {
+		return x.DestPath
+	}
+	return ""
+}
+
+func (x *DownloadFileRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
+func (x *DownloadFileRequest) GetPluginId() int64 {
+	if x != nil {
+		return x.PluginId
+	}
+	return 0
+}
+
+func (x *DownloadFileRequest) GetExtractTgz() bool {
+	if x != nil {
+		return x.ExtractTgz
+	}
+	return false
+}
+
+func (x *DownloadFileRequest) GetExtractTargetName() string {
+	if x != nil {
+		return x.ExtractTargetName
+	}
+	return ""
+}
+
+// 异步下载文件响应
+type DownloadFileResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	TaskId  string `protobuf:"bytes,3,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+}
+
+func (x *DownloadFileResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *DownloadFileResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DownloadFileResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *DownloadFileResponse) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
+// 获取下载任务状态请求
+type GetDownloadStatusRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TaskId   string `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`        // 任务标识符
+	PluginId int64  `protobuf:"varint,2,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"` // 插件 ID
+}
+
+func (x *GetDownloadStatusRequest) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *GetDownloadStatusRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
+func (x *GetDownloadStatusRequest) GetPluginId() int64 {
+	if x != nil {
+		return x.PluginId
+	}
+	return 0
+}
+
+// 获取下载任务状态响应
+type GetDownloadStatusResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success         bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message         string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Status          string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`                                           // "downloading", "completed", "failed", "not_found"
+	DownloadedBytes int64  `protobuf:"varint,4,opt,name=downloaded_bytes,json=downloadedBytes,proto3" json:"downloaded_bytes,omitempty"` // 已下载字节数
+	TotalBytes      int64  `protobuf:"varint,5,opt,name=total_bytes,json=totalBytes,proto3" json:"total_bytes,omitempty"`                // 文件总字节数（-1 表示未知）
+	ProgressPercent int32  `protobuf:"varint,6,opt,name=progress_percent,json=progressPercent,proto3" json:"progress_percent,omitempty"` // 下载进度百分比 0-100
+	Error           string `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`                                             // 失败时的错误信息
+}
+
+func (x *GetDownloadStatusResponse) ProtoReflect() protoreflect.Message {
+	panic(`not implemented`)
+}
+
+func (x *GetDownloadStatusResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *GetDownloadStatusResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *GetDownloadStatusResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *GetDownloadStatusResponse) GetDownloadedBytes() int64 {
+	if x != nil {
+		return x.DownloadedBytes
+	}
+	return 0
+}
+
+func (x *GetDownloadStatusResponse) GetTotalBytes() int64 {
+	if x != nil {
+		return x.TotalBytes
+	}
+	return 0
+}
+
+func (x *GetDownloadStatusResponse) GetProgressPercent() int32 {
+	if x != nil {
+		return x.ProgressPercent
+	}
+	return 0
+}
+
+func (x *GetDownloadStatusResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
 // 插件服务定义
 // go:plugin type=plugin version=4
 type PluginService interface {
@@ -1128,4 +1320,8 @@ type HostFunctions interface {
 	StopCommand(context.Context, *StopCommandRequest) (*StopCommandResponse, error)
 	// 获取后台命令输出
 	GetCommandOutput(context.Context, *GetCommandOutputRequest) (*GetCommandOutputResponse, error)
+	// 异步下载文件到插件数据目录
+	DownloadFile(context.Context, *DownloadFileRequest) (*DownloadFileResponse, error)
+	// 获取下载任务状态
+	GetDownloadStatus(context.Context, *GetDownloadStatusRequest) (*GetDownloadStatusResponse, error)
 }

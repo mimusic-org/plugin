@@ -429,3 +429,49 @@ func (h hostFunctions) GetCommandOutput(ctx context.Context, request *GetCommand
 	}
 	return response, nil
 }
+
+//go:wasmimport env download_file
+func _download_file(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) DownloadFile(ctx context.Context, request *DownloadFileRequest) (*DownloadFileResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _download_file(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(DownloadFileResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+//go:wasmimport env get_download_status
+func _get_download_status(ptr uint32, size uint32) uint64
+
+func (h hostFunctions) GetDownloadStatus(ctx context.Context, request *GetDownloadStatusRequest) (*GetDownloadStatusResponse, error) {
+	buf, err := request.MarshalVT()
+	if err != nil {
+		return nil, err
+	}
+	ptr, size := wasm.ByteToPtr(buf)
+	ptrSize := _get_download_status(ptr, size)
+	wasm.Free(ptr)
+
+	ptr = uint32(ptrSize >> 32)
+	size = uint32(ptrSize)
+	buf = wasm.PtrToByte(ptr, size)
+
+	response := new(GetDownloadStatusResponse)
+	if err = response.UnmarshalVT(buf); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
