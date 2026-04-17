@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 option go_package = "./api/pbplugin";
 
 // 插件服务定义
-// go:plugin type=plugin version=4
+// go:plugin type=plugin version=5
 service PluginService {
   // 获取插件信息
   rpc GetPluginInfo(google.protobuf.Empty) returns (GetPluginInfoResponse);
@@ -39,7 +39,6 @@ message PluginInfo {
   string description = 3;
   string author      = 4;
   string homepage    = 5;
-  string entry_path  = 6; // 插件入口路径，如 "/xiaomi"
 }
 
 message InitRequest {
