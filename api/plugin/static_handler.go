@@ -16,10 +16,8 @@ import (
 // StaticHandler 静态文件处理器
 // 在初始化时预加载所有静态文件内容到内存，避免每次请求都读取 embed.FS
 type StaticHandler struct {
-	// fileCache 预加载的静态文件内容缓存，key 为请求路径（如 /xiaomi/static/css/style.css）
+	// fileCache 预加载的静态文件内容缓存，key 为请求路径（如 /static/css/style.css）
 	fileCache map[string]*RouterResponse
-	// basePath 插件的基础路径，如 /xiaomi
-	basePath string
 }
 
 // getHeadersForFile 根据文件路径返回对应的 Content-Type headers
@@ -56,10 +54,9 @@ func getHeadersForFile(filePath string) map[string]string {
 
 // NewStaticHandler 创建新的静态文件处理器，自动遍历 static 目录并注册所有路由
 // fsys: 静态文件系统，用于遍历目录和读取文件
-// basePath: 插件的基础路径，如 /xiaomi
 // rm: 路由管理器
 // ctx: 上下文
-func NewStaticHandler(fsys fs.FS, basePath string, rm *RouterManager, ctx context.Context) *StaticHandler {
+func NewStaticHandler(fsys fs.FS, rm *RouterManager, ctx context.Context) *StaticHandler {
 	cache := make(map[string]*RouterResponse)
 
 	// 递归遍历 static 目录并注册所有文件
@@ -94,14 +91,14 @@ func NewStaticHandler(fsys fs.FS, basePath string, rm *RouterManager, ctx contex
 				content = injectAuthBridge(content)
 			}
 
-			// 生成路由路径
+			// 生成路由路径（宿主端 RegisterRouter 会自动拼接 /api/v1/plugin/{entryPath} 前缀）
 			var routePath string
 			if fullPath == "static/index.html" {
-				// 根目录的 index.html 映射到 basePath
-				routePath = basePath
+				// 根目录的 index.html 映射到 "/"
+				routePath = "/"
 			} else {
-				// 其他文件：basePath + 完整文件路径
-				routePath = basePath + "/" + fullPath
+				// 其他文件："/" + 完整文件路径
+				routePath = "/" + fullPath
 			}
 
 			// 缓存文件内容
@@ -111,18 +108,10 @@ func NewStaticHandler(fsys fs.FS, basePath string, rm *RouterManager, ctx contex
 				Body:       content,
 			}
 
-			// 注册路由
+			// 注册路由（宿主端会自动拼接 /api/v1/plugin/{entryPath} 前缀）
 			rm.RegisterRouter(ctx, "GET", routePath, func(req *http.Request) (*RouterResponse, error) {
 				if resp, exists := cache[req.URL.Path]; exists {
 					return resp, nil
-				}
-				// 处理路径前缀
-				idx := strings.Index(req.URL.Path, basePath)
-				if idx >= 0 {
-					shortPath := req.URL.Path[idx:]
-					if resp, exists := cache[shortPath]; exists {
-						return resp, nil
-					}
 				}
 				return &RouterResponse{
 					StatusCode: 404,
@@ -141,31 +130,20 @@ func NewStaticHandler(fsys fs.FS, basePath string, rm *RouterManager, ctx contex
 		slog.Warn("遍历静态文件目录失败", "error", err)
 	}
 
-	slog.Info("静态文件处理器初始化完成", "cached_files", len(cache), "base_path", basePath)
+	slog.Info("静态文件处理器初始化完成", "cached_files", len(cache))
 
 	return &StaticHandler{
 		fileCache: cache,
-		basePath:  basePath,
 	}
 }
 
 // HandleRequest 处理所有静态资源请求（HTML 页面和 CSS, JS 等）
 func (h *StaticHandler) HandleRequest(req *http.Request) (*RouterResponse, error) {
-	path := req.URL.Path
+	reqPath := req.URL.Path
 
 	// 直接从缓存中查找
-	if resp, exists := h.fileCache[path]; exists {
+	if resp, exists := h.fileCache[reqPath]; exists {
 		return resp, nil
-	}
-
-	// 路径中可能包含 /api/v1/plugin 前缀，尝试提取 basePath 部分
-	idx := strings.Index(path, h.basePath)
-	slog.Info("静态文件处理器", "path", path, "idx", idx, "base_path", h.basePath)
-	if idx >= 0 {
-		shortPath := path[idx:]
-		if resp, exists := h.fileCache[shortPath]; exists {
-			return resp, nil
-		}
 	}
 
 	return &RouterResponse{
