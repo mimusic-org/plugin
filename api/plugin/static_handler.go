@@ -109,8 +109,9 @@ func NewStaticHandler(fsys fs.FS, rm *RouterManager, ctx context.Context) *Stati
 			}
 
 			// 注册路由（宿主端会自动拼接 /api/v1/plugin/{entryPath} 前缀）
+			// 闭包捕获 routePath 作为缓存 key（req.URL.Path 是带前缀的完整路径，与缓存 key 不匹配）
 			rm.RegisterRouter(ctx, "GET", routePath, func(req *http.Request) (*RouterResponse, error) {
-				if resp, exists := cache[req.URL.Path]; exists {
+				if resp, exists := cache[routePath]; exists {
 					return resp, nil
 				}
 				return &RouterResponse{
